@@ -9,6 +9,7 @@ import javafx.fxml.FXML;
 import javafx.scene.control.Label;
 import javafx.scene.control.ListView;
 import javafx.scene.control.TextField;
+import javafx.stage.FileChooser;
 
 import java.io.*;
 import java.nio.file.Files;
@@ -29,6 +30,13 @@ public class HelloController {
         listComment = FXCollections.observableArrayList();
         comments.setItems(listComment);
         gson = new GsonBuilder().setPrettyPrinting().create();
+
+        // TODO test file exists & directory
+//        if (new File("data/comment.json").isFile()) {}
+//        if (new File("data/").isDirectory()) {}
+        // TODO delete & move file
+//        Files.move(null, null);
+//        Files.delete(null);
     }
 
     public void add(ActionEvent actionEvent) {
@@ -56,13 +64,24 @@ public class HelloController {
     }
 
     public void save2(ActionEvent actionEvent) throws IOException {
-        Path path = Paths.get(defaultFile);
+        FileChooser chooser = new FileChooser();
+        chooser.setSelectedExtensionFilter(new FileChooser.ExtensionFilter("json", "*.json"));
+        File file = chooser.showSaveDialog(username.getScene().getWindow());
+        Path path = Paths.get(file.getPath());
         Files.write(path, gson.toJson(listComment).getBytes());
     }
 
     public void load2(ActionEvent actionEvent) throws IOException {
-        Path path = Paths.get(defaultFile);
-        listComment.clear();
-        listComment.addAll(gson.fromJson(Files.readString(path), Comment[].class));
+        FileChooser chooser = new FileChooser();
+        File file = chooser.showOpenDialog(username.getScene().getWindow());
+        // Error Handling
+        // file tidak jadi dibuka
+        // isi json kosong
+        // bukan file json (menggunakan extension filter)
+        if (file != null) {
+            Path path = Paths.get(file.getPath());
+            listComment.clear();
+            listComment.addAll(gson.fromJson(Files.readString(path), Comment[].class));
+        }
     }
 }
